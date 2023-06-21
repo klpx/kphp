@@ -1409,7 +1409,8 @@ function kphp_job_worker_start_no_reply(KphpJobWorkerRequest $request, float $ti
 function kphp_job_worker_start_multi(KphpJobWorkerRequest[] $request, float $timeout) ::: (future<KphpJobWorkerResponse> | false)[];
 
 function kphp_job_worker_fetch_request() ::: KphpJobWorkerRequest;
-function kphp_job_worker_store_response(KphpJobWorkerResponse $response) ::: void;
+// returns 0 on success, < 0 - on errors
+function kphp_job_worker_store_response(KphpJobWorkerResponse $response) ::: int;
 
 function is_kphp_job_workers_enabled() ::: bool;
 
