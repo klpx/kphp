@@ -3,7 +3,10 @@ name: debian
 on:
   push:
     branches:
-    - master
+      - master
+  pull_request:
+    branches:
+      - master
 
 env:
   kphp_root_dir: /home/kitten/kphp
@@ -39,19 +42,21 @@ jobs:
       with:
         path: kphp-build-env-${{matrix.os}}.tar
         key: docker-image-cache-${{matrix.os}}-${{ hashFiles('.github/workflows/Dockerfile.*') }}
-          
+
     - name: Build and save docker image
       if: steps.docker-image-cache.outputs.cache-hit != 'true'
       run: |
         docker build -f $GITHUB_WORKSPACE/.github/workflows/Dockerfile.${{matrix.os}} $GITHUB_WORKSPACE -t kphp-build-img-${{matrix.os}}
         docker save --output kphp-build-env-${{matrix.os}}.tar kphp-build-img-${{matrix.os}}
-        
+
     - name: Load docker image from cache
       if: steps.docker-image-cache.outputs.cache-hit == 'true'
       run: docker load --input kphp-build-env-${{matrix.os}}.tar
-      
+
     - name: Start docker container
-      run: docker run -dt --name kphp-build-container-${{matrix.os}} --volume $GITHUB_WORKSPACE:${{env.kphp_root_dir}} kphp-build-img-${{matrix.os}}
+      run: |
+        docker run -dt --name kphp-build-container-${{matrix.os}} kphp-build-img-${{matrix.os}}
+        docker cp $GITHUB_WORKSPACE/. kphp-build-container-${{matrix.os}}:${{env.kphp_root_dir}}
 
     - name: Change repo rights
       run: docker exec kphp-build-container-${{matrix.os}} bash -c
