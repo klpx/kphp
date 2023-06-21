@@ -4,6 +4,9 @@ on:
   push:
     branches:
     - master
+  pull_request:
+    branches:
+      - master
 
 env:
   kphp_root_dir: /home/kitten/kphp
@@ -18,8 +21,8 @@ jobs:
         include:
           - os: jammy
             compiler: g++
-            cpp: 17
-            asan: off
+            cpp: 20
+            asan: on
             ubsan: off
           - os: focal
             compiler: clang++
@@ -61,7 +64,9 @@ jobs:
       run: docker load --input kphp-build-env-${{matrix.os}}.tar
       
     - name: Start docker container
-      run: docker run -dt --name kphp-build-container-${{matrix.os}} --volume $GITHUB_WORKSPACE:${{env.kphp_root_dir}} kphp-build-img-${{matrix.os}}
+      run: |
+        docker run -dt --name kphp-build-container-${{matrix.os}} kphp-build-img-${{matrix.os}}
+        docker cp $GITHUB_WORKSPACE/. kphp-build-container-${{matrix.os}}:${{env.kphp_root_dir}}
 
     - name: Change repo rights
       run: docker exec kphp-build-container-${{matrix.os}} bash -c
