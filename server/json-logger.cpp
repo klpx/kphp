@@ -274,7 +274,7 @@ void JsonLogger::write_trace_line(const char *json_buf, size_t buf_len) noexcept
     return;
   }
 
-  write(traces_log_fd_, json_buf, buf_len);
+  std::ignore = write(traces_log_fd_, json_buf, buf_len);
   json_traces_count = json_traces_count + 1;
 }
 
